@@ -1,0 +1,16 @@
+{
+  "name": "wall-rush",
+  "version": "1.0.0",
+  "description": "Phiên bản chuẩn của game cờ chiến thuật nổi tiếng **WallRush (Quoridor)** (tham khảo từ [wallrush.online](https://wallrush.online/)), hỗ trợ **2 Người Chơi** trên cùng một bàn phím hoặc **Chơi với Máy (AI)**, giao diện sáng sủa, tinh tế, đẹp mắt và âm thanh sống động.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^8.21.3"
+  }
+}

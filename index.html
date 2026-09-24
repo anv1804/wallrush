@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>WallRush — Quoridor Online (1v1, 2v2, 1v1v1v1)</title>
+  <!-- Google Fonts với hỗ trợ tiếng Việt 100% không bị lỗi font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- Reconnect Banner (Floating top alert if resuming match) -->
+    <div id="reconnect-banner" class="reconnect-banner hidden">
+      <span class="rc-spinner"></span>
+      <span id="reconnect-text">Đang kết nối lại vào trận đấu của bạn...</span>
+      <button type="button" id="btn-cancel-reconnect" class="btn-sm">Hủy</button>
+    </div>
+
+    <!-- ==========================================================
+         SCREEN 1: SẢNH CHÍNH (LOBBY SCREEN)
+         ========================================================== -->
+    <section id="screen-lobby" class="screen-view active">
+      <!-- Top Lobby Bar -->
+      <header class="lobby-header">
+        <div class="logo">
+          <div class="logo-mark">
+            <span class="lm-bar lm-top"></span>
+            <span class="lm-bar lm-left"></span>
+          </div>
+          <div class="logo-text">
+            <h1>WallRush</h1>
+            <span class="tagline">Quoridor Online</span>
+          </div>
+        </div>
+
+        <div class="server-status">
+          <span class="status-dot online" id="server-status-dot"></span>
+          <span id="server-status-text">Máy chủ Online</span>
+        </div>
+
+        <div class="header-right-actions">
+          <!-- Friends Button -->
+          <button type="button" class="btn-friends-lobby" id="btn-open-friends" title="Danh sách & Tìm bạn bè">
+            <span class="btn-friends-icon">👥</span>
+            <span class="btn-friends-text">Bạn Bè</span>
+            <span class="friends-online-badge hidden" id="friends-online-badge">0</span>
+          </button>
+
+          <!-- Profile Widget -->
+          <div class="profile-card" id="profile-card" title="Bấm để đổi tên & avatar">
+            <div class="profile-avatar" id="lobby-avatar">🦊</div>
+            <div class="profile-details">
+              <div class="profile-name" id="lobby-nickname">Chiến Tướng</div>
+              <div class="profile-stats">
+                <span class="rating-badge">🏆 <b id="lobby-rating">1000</b></span>
+                <span class="winrate-badge">Thắng: <b id="lobby-winrate">0%</b></span>
+              </div>
+            </div>
+            <button type="button" class="btn-edit-profile" id="btn-edit-profile" title="Sửa hồ sơ">✏️</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Game Modes Selection Grid -->
+      <main class="lobby-main">
+        <div class="section-title">
+          <span>CHỌN CHẾ ĐỘ THI ĐẤU</span>
+          <div class="title-line"></div>
+        </div>
+
+        <div class="mode-cards-grid">
+
+          <!-- 1v1 Online Card -->
+          <div class="mode-card card-1v1" id="card-1v1">
+            <div class="mode-icon ic-1v1">⚡</div>
+            <div class="mode-info">
+              <h2>1v1 Online</h2>
+              <p>Đối kháng xếp hạng 1 chọi 1 đỉnh cao</p>
+              <div class="badge-row">
+                <span class="mode-badge b-1v1">2 Người Chơi • Ghép Nhanh</span>
+              </div>
+            </div>
+            <div class="mode-arrow">›</div>
+          </div>
+
+          <!-- 2v2 Online Card -->
+          <div class="mode-card card-2v2" id="card-2v2">
+            <div class="mode-icon ic-2v2">👥</div>
+            <div class="mode-info">
+              <h2>2v2 Đấu Đội Online</h2>
+              <p>Hợp sức 2 người cùng đội cản đường đối thủ</p>
+              <div class="badge-row">
+                <span class="mode-badge b-2v2">4 Người • 2 Đội Xanh & Đỏ</span>
+              </div>
+            </div>
+            <div class="mode-arrow">›</div>
+          </div>
+
+          <!-- 1v1v1v1 Quad Online Card -->
+          <div class="mode-card card-quad" id="card-quad">
+            <div class="mode-icon ic-quad">👑</div>
+            <div class="mode-info">
+              <h2>1v1v1v1 Loạn Đấu</h2>
+              <p>4 người chơi từ 4 cạnh bàn cờ đua về đích</p>
+              <div class="badge-row">
+                <span class="mode-badge b-quad">4 Người • Sinh Tồn Tự Do</span>
+              </div>
+            </div>
+            <div class="mode-arrow">›</div>
+          </div>
+
+          <!-- Custom Room Card -->
+          <div class="mode-card card-custom" id="card-custom">
+            <div class="mode-icon ic-custom">🔑</div>
+            <div class="mode-info">
+              <h2>Tạo / Vào Phòng Riêng</h2>
+              <p>Chơi cùng bạn bè qua mã phòng 6 chữ số</p>
+              <div class="badge-row">
+                <span class="mode-badge b-custom">Nhập mã hoặc tạo phòng</span>
+              </div>
+            </div>
+            <div class="mode-arrow">›</div>
+          </div>
+
+          <!-- Local Offline Card -->
+          <div class="mode-card card-local" id="card-local">
+            <div class="mode-icon ic-local">💻</div>
+            <div class="mode-info">
+              <h2>Chơi Cục Bộ (Offline)</h2>
+              <p>2 người chơi chung máy (WASD & Mũi tên) hoặc luyện tập với AI</p>
+              <div class="badge-row">
+                <span class="mode-badge b-local">Offline • Không cần mạng</span>
+              </div>
+            </div>
+            <div class="mode-arrow">›</div>
+          </div>
+
+        </div>
+      </main>
+    </section>
+
+    <!-- ==========================================================
+         SCREEN 2: PHÒNG CHỜ / GHÉP TRẬN (WAITING & ROOM SCREEN)
+         ========================================================== -->
+    <section id="screen-waiting" class="screen-view">
+      <div class="waiting-box">
+        <div class="spinner" id="waiting-spinner"></div>
+        <h2 id="waiting-title">ĐANG TÌM ĐỐI THỦ...</h2>
+        <p class="waiting-sub" id="waiting-sub">Vui lòng chờ trong giây lát để hệ thống tìm người chơi phù hợp</p>
+
+        <!-- Room Code Display (Custom Rooms) -->
+        <div class="room-code-box hidden" id="room-code-box">
+          <span class="rc-label">MÃ PHÒNG CỦA BẠN:</span>
+          <div class="rc-code-row">
+            <span class="rc-code" id="display-room-code">------</span>
+            <button type="button" class="btn-copy-code" id="btn-copy-code">Sao chép mã</button>
+          </div>
+          <p class="rc-hint">Gửi mã này cho bạn bè để cùng vào phòng!</p>
+        </div>
+
+        <!-- Seats list (2 or 4 seats) -->
+        <div class="seats-container" id="seats-container"></div>
+
+        <div class="waiting-actions">
+          <button type="button" class="btn btn-accent hidden" id="btn-invite-friends">👥 MỜI BẠN BÈ</button>
+          <button type="button" class="btn btn-primary hidden" id="btn-start-room">BẮT ĐẦU TRẬN ĐẤU</button>
+          <button type="button" class="btn btn-secondary" id="btn-leave-waiting">RỜI PHÒNG</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         SCREEN 3: BÀN CỜ THI ĐẤU (GAMEPLAY SCREEN - BIGGER & ROOMY)
+         ========================================================== -->
+    <section id="screen-game" class="screen-view">
+      <div class="game-layout">
+
+        <!-- LEFT/CENTER: BÀN CỜ LỚN (EXPANDED 9X9 BOARD) -->
+        <div class="game-board-section">
+          <!-- Top Goal (Player 1 target in 2P, or Player 2 start in 4P) -->
+          <div class="board-edge-indicator edge-top" id="edge-top">
+            <span>🏁 ĐÍCH CỦA P1 🏁</span>
+          </div>
+
+          <div class="board-with-sides">
+            <!-- Left Goal (4P Mode) -->
+            <div class="board-edge-indicator edge-left hidden" id="edge-left">
+              <span>🏁 ĐÍCH P4</span>
+            </div>
+
+            <!-- Big 9x9 Board -->
+            <div class="big-board-wrapper">
+              <div id="board" class="board"></div>
+            </div>
+
+            <!-- Right Goal (4P Mode) -->
+            <div class="board-edge-indicator edge-right hidden" id="edge-right">
+              <span>ĐÍCH P3 🏁</span>
+            </div>
+          </div>
+
+          <!-- Bottom Goal (Player 2 target in 2P, or Player 1 start in 4P) -->
+          <div class="board-edge-indicator edge-bottom" id="edge-bottom">
+            <span>🏁 ĐÍCH CỦA P2 🏁</span>
+          </div>
+
+          <!-- Floating Bar when reviewing finished game board -->
+          <div id="review-board-bar" class="review-board-bar hidden">
+            <span>🔍 Đang xem lại bàn cờ</span>
+            <button type="button" id="btn-reopen-gameover" class="btn btn-primary" style="padding:6px 14px; font-size:0.8rem;">BẢNG KẾT QUẢ / TÁI ĐẤU</button>
+          </div>
+        </div>
+
+        <!-- RIGHT: BẢNG ĐIỀU KHIỂN & TRẠNG THÁI TRẬN ĐẤU -->
+        <div class="game-sidebar">
+
+          <!-- Top Game Bar: Header, Audio, Exit -->
+          <div class="game-sub-header">
+            <div class="game-mode-tag" id="game-mode-tag">1v1 Online</div>
+            <div class="sub-actions">
+              <button type="button" class="icon-btn" id="btn-game-sound" title="Âm thanh">🔊</button>
+              <button type="button" class="icon-btn" id="btn-game-help" title="Luật chơi">📖</button>
+              <button type="button" class="icon-btn btn-exit" id="btn-game-exit" title="Thoát ra sảnh">🚪</button>
+            </div>
+          </div>
+
+          <!-- Players Status List (Supports 2 or 4 players) -->
+          <div class="players-status-strip" id="players-status-strip">
+            <!-- Dynamically populated player cards -->
+          </div>
+
+          <!-- Turn Banner with 3-minute Countdown Clock -->
+          <div class="turn-banner" id="turn-banner">
+            <span class="turn-indicator-dot"></span>
+            <span id="turn-text">Lượt của <b>Player 1</b></span>
+            <div class="turn-timer-pill hidden" id="turn-timer-pill" title="Thời gian còn lại của lượt (Tối đa 3 phút)">
+              ⏱️ <b id="turn-timer-val">03:00</b>
+            </div>
+          </div>
+
+          <!-- Wall Dock: Ngang / Dọc -->
+          <div class="dock-card">
+            <div class="dock-header">
+              <div class="dock-title">
+                <span>KHO TƯỜNG CHẮN</span>
+                <span class="dock-count-badge" id="dock-walls-count">🧱 10</span>
+              </div>
+              <div class="wall-mode-indicator" id="wall-mode-indicator">
+                Chế độ: <b>Đi quân</b>
+              </div>
+            </div>
+
+            <div class="wall-select-row">
+              <button type="button" id="btn-wall-h" class="wall-dock-btn" title="Đặt Tường Ngang">
+                <div class="wall-btn-preview"><span class="wall-bar-sample h-bar"></span></div>
+                <div class="wall-btn-label">
+                  <b>Tường Ngang</b>
+                  <small>[Shift] để bật</small>
+                </div>
+              </button>
+
+              <button type="button" id="btn-wall-v" class="wall-dock-btn" title="Đặt Tường Dọc">
+                <div class="wall-btn-preview"><span class="wall-bar-sample v-bar"></span></div>
+                <div class="wall-btn-label">
+                  <b>Tường Dọc</b>
+                  <small>[Ctrl] để xoay</small>
+                </div>
+              </button>
+            </div>
+
+            <button type="button" id="btn-cancel-wall" class="btn-cancel-action hidden">
+              ✕ Hủy bỏ đặt tường (Quay lại đi quân)
+            </button>
+          </div>
+
+          <!-- Interactive Live Chat & Fun Quick Messages -->
+          <div class="in-game-chat-card" id="in-game-chat-card">
+            <div class="chat-header">
+              <span class="chat-title">💬 Trò chuyện & Tương tác</span>
+              <div class="quick-phrases-dropdown">
+                <select id="quick-phrase-select" class="quick-phrase-select">
+                  <option value="">⚡ Tin nhắn nhanh...</option>
+                  <option value="Chào nhé! Chúc trận đấu vui vẻ!">🤝 Chúc thi đấu vui vẻ!</option>
+                  <option value="Nước đi đỉnh thật đấy!">🔥 Nước đi đỉnh cao!</option>
+                  <option value="Hết đường rồi bạn ơi haha!">😂 Bị chặn đường rồi!</option>
+                  <option value="Đừng chặn tui nữa mà 😭">😭 Đừng chặn nữa mà!</option>
+                  <option value="Căng thẳng quá!">⚡ Trận đấu căng thẳng!</option>
+                  <option value="Hay lắm, bái phục!">🫡 Bái phục!</option>
+                  <option value="Cố lên đồng đội ơi!">💪 Cố lên đồng đội!</option>
+                  <option value="Xin lỗi đồng đội tui đi nhầm 😅">😅 Xin lỗi đồng đội!</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="chat-messages-container" id="chat-messages-container">
+              <div class="chat-empty-hint">Chưa có tin nhắn nào. Hãy gửi lời chào đến đối thủ!</div>
+            </div>
+
+            <div class="chat-input-row">
+              <input type="text" id="input-chat-msg" placeholder="Nhập tin nhắn..." maxlength="90">
+              <button type="button" id="btn-send-chat" class="btn-send-chat">GỬI</button>
+            </div>
+          </div>
+
+          <!-- Emoji Reactions Bar -->
+          <div class="emoji-bar-card">
+            <span class="emoji-title">Cảm xúc:</span>
+            <div class="emoji-buttons">
+              <button type="button" class="btn-emoji" data-emoji="😂">😂</button>
+              <button type="button" class="btn-emoji" data-emoji="🫡">🫡</button>
+              <button type="button" class="btn-emoji" data-emoji="🤝">🤝</button>
+              <button type="button" class="btn-emoji" data-emoji="🔥">🔥</button>
+              <button type="button" class="btn-emoji" data-emoji="😱">😱</button>
+              <button type="button" class="btn-emoji" data-emoji="😡">😡</button>
+            </div>
+          </div>
+
+          <!-- Quick Controls Hint -->
+          <div class="guide-card">
+            <div class="guide-title">⌨️ Phím tắt: [Shift] Bật tường • [Ctrl] Xoay • [Space/Enter] Đặt/Đi</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         MODALS & DIALOGS
+         ========================================================== -->
+
+    <!-- Modal 0: First-time Onboarding Modal -->
+    <div id="modal-onboarding" class="modal-overlay hidden">
+      <div class="modal-card onboarding-card">
+        <div class="onboard-header">
+          <div class="onboard-emoji">👋</div>
+          <h2>CHÀO MỪNG ĐẾN VỚI WALLRUSH!</h2>
+          <p>Nhập tên người chơi và chọn hình đại diện để bắt đầu hành trình chiến thuật:</p>
+        </div>
+
+        <div class="form-group">
+          <label>Tên hiển thị của bạn:</label>
+          <input type="text" id="input-onboard-nickname" maxlength="16" placeholder="Nhập tên của bạn (VD: Chiến Binh Rồng)..." autofocus>
+        </div>
+
+        <div class="form-group">
+          <label>Chọn biểu tượng đại diện:</label>
+          <div class="avatar-picker" id="onboard-avatar-picker">
+            <button type="button" class="avatar-opt active">🦊</button>
+            <button type="button" class="avatar-opt">🦁</button>
+            <button type="button" class="avatar-opt">🐯</button>
+            <button type="button" class="avatar-opt">🦅</button>
+            <button type="button" class="avatar-opt">👑</button>
+            <button type="button" class="avatar-opt">⚡</button>
+            <button type="button" class="avatar-opt">🔥</button>
+            <button type="button" class="avatar-opt">⚔️</button>
+            <button type="button" class="avatar-opt">🐉</button>
+            <button type="button" class="avatar-opt">🐱</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Chọn màu sắc đại diện (quân cờ, tường, giao diện):</label>
+          <div class="color-picker-row" id="onboard-color-picker">
+            <button type="button" class="color-swatch-btn active" data-color="indigo" title="Xanh Chàm (Indigo)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #6366f1, #4f46e5);"></span>
+              <span class="swatch-label">Chàm</span>
+            </button>
+            <button type="button" class="color-swatch-btn" data-color="rose" title="Đỏ Hồng (Rose)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #fb7185, #f43f5e);"></span>
+              <span class="swatch-label">Đỏ Hồng</span>
+            </button>
+            <button type="button" class="color-swatch-btn" data-color="emerald" title="Xanh Lục (Emerald)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #34d399, #10b981);"></span>
+              <span class="swatch-label">Lục Bảo</span>
+            </button>
+            <button type="button" class="color-swatch-btn" data-color="amber" title="Cam Vàng (Amber)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);"></span>
+              <span class="swatch-label">Cam Vàng</span>
+            </button>
+            <button type="button" class="color-swatch-btn" data-color="cyan" title="Xanh Lam (Cyan)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #22d3ee, #06b6d4);"></span>
+              <span class="swatch-label">Lam Ngọc</span>
+            </button>
+            <button type="button" class="color-swatch-btn" data-color="purple" title="Tím Hoàng Gia (Purple)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #c084fc, #9333ea);"></span>
+              <span class="swatch-label">Tím</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary full-w onboard-btn" id="btn-finish-onboarding">BẮT ĐẦU CHƠI NGAY</button>
+      </div>
+    </div>
+
+    <!-- Modal 1: Edit Profile -->
+    <div id="modal-profile" class="modal-overlay hidden">
+      <div class="modal-card">
+        <h2>✏️ CHỈNH SỬA HỒ SƠ</h2>
+        <div class="form-group">
+          <label>Tên người chơi:</label>
+          <input type="text" id="input-nickname" maxlength="16" placeholder="Nhập tên của bạn...">
+        </div>
+        <div class="form-group">
+          <label>Chọn biểu tượng đại diện:</label>
+          <div class="avatar-picker" id="avatar-picker">
+            <button type="button" class="avatar-opt">🦊</button>
+            <button type="button" class="avatar-opt">🦁</button>
+            <button type="button" class="avatar-opt">🐯</button>
+            <button type="button" class="avatar-opt">🦅</button>
+            <button type="button" class="avatar-opt">👑</button>
+            <button type="button" class="avatar-opt">⚡</button>
+            <button type="button" class="avatar-opt">🔥</button>
+            <button type="button" class="avatar-opt">⚔️</button>
+            <button type="button" class="avatar-opt">🐉</button>
+            <button type="button" class="avatar-opt">🐱</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Chọn màu sắc đại diện:</label>
+          <div class="color-picker-row" id="profile-color-picker">
+            <button type="button" class="color-swatch-btn" data-color="indigo" title="Xanh Chàm (Indigo)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #6366f1, #4f46e5);"></span>
+              <span class="swatch-label">Chàm</span>
+            </button>
+            <button type="button" class="color-swatch-btn" data-color="rose" title="Đỏ Hồng (Rose)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #fb7185, #f43f5e);"></span>
+              <span class="swatch-label">Đỏ Hồng</span>
+            </button>
+            <button type="button" class="color-swatch-btn" data-color="emerald" title="Xanh Lục (Emerald)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #34d399, #10b981);"></span>
+              <span class="swatch-label">Lục Bảo</span>
+            </button>
+            <button type="button" class="color-swatch-btn" data-color="amber" title="Cam Vàng (Amber)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);"></span>
+              <span class="swatch-label">Cam Vàng</span>
+            </button>
+            <button type="button" class="color-swatch-btn" data-color="cyan" title="Xanh Lam (Cyan)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #22d3ee, #06b6d4);"></span>
+              <span class="swatch-label">Lam Ngọc</span>
+            </button>
+            <button type="button" class="color-swatch-btn" data-color="purple" title="Tím Hoàng Gia (Purple)">
+              <span class="swatch-circle" style="background: linear-gradient(135deg, #c084fc, #9333ea);"></span>
+              <span class="swatch-label">Tím</span>
+            </button>
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-primary" id="btn-save-profile">LƯU HỒ SƠ</button>
+          <button type="button" class="btn btn-secondary" id="btn-close-profile">HỦY</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 2: Custom Room (Create or Join) -->
+    <div id="modal-custom-room" class="modal-overlay hidden">
+      <div class="modal-card">
+        <h2>🔑 PHÒNG CHƠI RIÊNG BẠN BÈ</h2>
+        <div class="custom-tabs">
+          <button type="button" class="tab-btn active" id="tab-create-room">Tạo Phòng Mới</button>
+          <button type="button" class="tab-btn" id="tab-join-room">Nhập Mã Phòng</button>
+        </div>
+
+        <!-- Create Section -->
+        <div class="tab-pane active" id="pane-create">
+          <label class="input-label">Chọn chế độ phòng:</label>
+          <div class="room-mode-picks">
+            <button type="button" class="rm-pick-btn active" data-mode="1v1">1v1 Đấu Đơn (2 Người)</button>
+            <button type="button" class="rm-pick-btn" data-mode="2v2">2v2 Đồng Đội (4 Người)</button>
+            <button type="button" class="rm-pick-btn" data-mode="1v1v1v1">1v1v1v1 Loạn Đấu (4 Người)</button>
+          </div>
+          <button type="button" class="btn btn-primary full-w" id="btn-do-create-room">TẠO PHÒNG NGAY</button>
+        </div>
+
+        <!-- Join Section -->
+        <div class="tab-pane hidden" id="pane-join">
+          <label class="input-label">Nhập mã phòng 6 chữ số:</label>
+          <input type="text" id="input-join-code" maxlength="6" placeholder="VÍ DỤ: RUSH88" uppercase>
+          <button type="button" class="btn btn-primary full-w" id="btn-do-join-room">VÀO PHÒNG</button>
+        </div>
+
+        <button type="button" class="btn btn-secondary full-w mt-8" id="btn-close-custom-room">ĐÓNG</button>
+      </div>
+    </div>
+
+    <!-- Modal 3: Game Over Result -->
+    <div id="modal-gameover" class="modal-overlay hidden">
+      <div class="modal-card win-modal">
+        <div class="modal-trophy">🏆</div>
+        <h2 class="modal-title" id="win-title">CHIẾN THẮNG!</h2>
+        <p class="modal-desc" id="win-desc">Đã xuất sắc đưa quân cờ cán đích thành công!</p>
+        <div class="rating-change-box" id="rating-change-box">
+          Điểm xếp hạng: <b id="rating-change-val">+25</b>
+        </div>
+        <div class="modal-buttons win-modal-buttons">
+          <button type="button" id="btn-review-board" class="btn btn-secondary">👀 XEM BÀN ĐẤU</button>
+          <button type="button" id="btn-rematch" class="btn btn-primary">🔄 TÁI ĐẤU NGAY</button>
+          <button type="button" id="btn-return-lobby" class="btn btn-secondary">🚪 VỀ SẢNH</button>
+        </div>
+        <div id="rematch-waiting-note" class="rematch-waiting-note hidden">Đã gửi yêu cầu tái đấu! Đang chờ đối thủ đồng ý...</div>
+      </div>
+    </div>
+
+    <!-- Modal 4: Rules -->
+    <div id="modal-rules" class="modal-overlay hidden">
+      <div class="modal-card rules-modal">
+        <div class="modal-header">
+          <h2>📖 LUẬT CHƠI QUORIDOR (WALLRUSH)</h2>
+          <button type="button" id="btn-close-rules" class="btn-close">✕</button>
+        </div>
+        <div class="rules-content">
+          <div class="rule-section">
+            <h3>🎯 1. Mục Tiêu Trò Chơi</h3>
+            <p>Đưa quân cờ của bạn chạm tới <b>bất kỳ ô nào thuộc cạnh đối diện</b> trước đối thủ:</p>
+            <ul>
+              <li><b>1v1:</b> P1 (đáy) lên đỉnh; P2 (đỉnh) xuống đáy. (Mỗi người 10 tường).</li>
+              <li><b>4 người (1v1v1v1 & 2v2):</b> 4 người xuất phát từ 4 cạnh bàn cờ đua về cạnh đối diện (Mỗi người 5 tường).</li>
+              <li><b>2v2:</b> Ai trong đội cán đích trước thì toàn đội giành chiến thắng!</li>
+            </ul>
+          </div>
+          <div class="rule-section">
+            <h3>🕹️ 2. Hành Động Mỗi Lượt</h3>
+            <p>Mỗi lượt chọn 1 trong 2: <b>Đi 1 ô</b> (hoặc nhảy qua đối thủ) HOẶC <b>Đặt 1 bức tường</b>.</p>
+          </div>
+          <div class="rule-section warning-box">
+            <h3>⚠️ 3. Quy Tắc Vàng Về Tường</h3>
+            <p><b>Tuyệt đối không được bịt kín hoàn toàn đường về đích của bất kỳ ai!</b> Luôn phải có ít nhất 1 lối đi về đích.</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btn-rules-ok" class="btn-primary btn">ĐÃ HIỂU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 5: 2v2 Entry Choice (Quick Match or Create Waiting Room) -->
+    <div id="modal-2v2-choice" class="modal-overlay hidden">
+      <div class="modal-card choice-modal">
+        <div class="choice-icon">👥</div>
+        <h2>2v2 ĐẤU ĐỘI CHIẾN THUẬT</h2>
+        <p>Chọn cách thức tham gia trận đấu 2v2 cùng đồng đội:</p>
+        <div class="choice-options">
+          <button type="button" class="btn-choice-card" id="btn-2v2-create-room">
+            <span class="cc-icon">🏠</span>
+            <div class="cc-text">
+              <b>Tạo Phòng Chờ 2v2 (Mời Bạn Bè)</b>
+              <small>Hệ thống tự động cấp Mã phòng, mời bạn bè Online hoặc gửi mã cho bạn bè vào</small>
+            </div>
+            <span class="cc-arrow">›</span>
+          </button>
+          <button type="button" class="btn-choice-card" id="btn-2v2-quick-match">
+            <span class="cc-icon">⚡</span>
+            <div class="cc-text">
+              <b>Ghép Nhanh Tự Động</b>
+              <small>Tự động ghép ngẫu nhiên với 3 người chơi khác đang online trên hệ thống</small>
+            </div>
+            <span class="cc-arrow">›</span>
+          </button>
+        </div>
+        <button type="button" class="btn btn-secondary full-w mt-8" id="btn-close-2v2-choice">QUAY LẠI</button>
+      </div>
+    </div>
+
+    <!-- Modal 6: Friends Management Modal -->
+    <div id="modal-friends" class="modal-overlay hidden">
+      <div class="modal-card friends-modal">
+        <div class="modal-header">
+          <div class="friends-header-title">
+            <h2>👥 BẠN BÈ & KẾT NỐI</h2>
+            <div class="my-friend-code-chip" id="my-friend-code-display" title="Bấm để sao chép mã của bạn">
+              <span>Mã của bạn:</span> <b id="display-my-code">WR-0000</b> 📋
+            </div>
+          </div>
+          <button type="button" id="btn-close-friends" class="btn-close">✕</button>
+        </div>
+
+        <div class="friends-tabs">
+          <button type="button" class="f-tab-btn active" id="tab-friends-list">Danh Sách Bạn Bè (<span id="friends-count-num">0</span>)</button>
+          <button type="button" class="f-tab-btn" id="tab-friends-search">🔍 Tìm & Kết Bạn</button>
+        </div>
+
+        <!-- Tab 1: Friend List -->
+        <div class="f-tab-pane active" id="pane-friends-list">
+          <div class="friends-list-container" id="friends-list-container">
+            <!-- Dynamic Friends List -->
+          </div>
+        </div>
+
+        <!-- Tab 2: Search Players -->
+        <div class="f-tab-pane hidden" id="pane-friends-search">
+          <div class="search-input-box">
+            <input type="text" id="input-search-friends" placeholder="Nhập tên người chơi hoặc Mã bạn bè (VD: WR-1234)..." maxlength="20">
+            <button type="button" class="btn btn-primary" id="btn-do-search-friends">Tìm kiếm</button>
+          </div>
+          <div class="search-results-container" id="search-results-container">
+            <div class="search-placeholder">Nhập tên hoặc mã bạn bè để tìm đối thủ & đồng đội</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 7: Custom Alert & Confirm Dialog (Không dùng alert/confirm mặc định) -->
+    <div id="modal-custom-dialog" class="modal-overlay hidden">
+      <div class="modal-card custom-dialog-card">
+        <div class="dialog-icon" id="dialog-icon">⚠️</div>
+        <h2 class="dialog-title" id="dialog-title">Thông báo</h2>
+        <p class="dialog-message" id="dialog-message">Nội dung thông báo chi tiết</p>
+        <div class="dialog-actions" id="dialog-actions">
+          <button type="button" class="btn btn-secondary" id="btn-dialog-cancel">HỦY BỎ</button>
+          <button type="button" class="btn btn-primary" id="btn-dialog-confirm">XÁC NHẬN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Room Invite Toast -->
+    <div id="invite-toast" class="invite-toast hidden">
+      <div class="toast-avatar" id="toast-inviter-avatar">🦊</div>
+      <div class="toast-body">
+        <div class="toast-title"><b id="toast-inviter-name">Bạn Bè</b> mời bạn chơi!</div>
+        <div class="toast-desc">Chế độ <span id="toast-room-mode">2v2</span> • Mã: <span id="toast-room-code">------</span></div>
+      </div>
+      <div class="toast-actions">
+        <button type="button" class="btn-toast-accept" id="btn-toast-accept">VÀO PHÒNG</button>
+        <button type="button" class="btn-toast-decline" id="btn-toast-decline">✕</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/quoridor.js"></script>
+  <script src="js/network.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
