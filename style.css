@@ -34,9 +34,9 @@
   /* CHUẨN FONT TIẾNG VIỆT 100% KHÔNG LỖI */
   --font-main: 'Be Vietnam Pro', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* BIGGER BOARD */
-  --cell-size: clamp(50px, 6.2vh, 64px);
-  --gap-size: clamp(10px, 1.2vh, 13px);
+  /* FLUID RESPONSIVE BOARD SIZING */
+  --cell-size: clamp(28px, min(6.0vh, 8.2vw), 64px);
+  --gap-size: clamp(5px, min(1.1vh, 1.5vw), 13px);
 }
 
 * {
@@ -141,8 +141,9 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  max-width: 900px;
+  gap: clamp(16px, 2.8vh, 28px);
+  width: 100%;
+  max-width: min(1120px, 94vw);
   margin: auto;
 }
 
@@ -151,12 +152,13 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(12px);
-  padding: 14px 24px;
+  padding: clamp(10px, 1.8vh, 16px) clamp(16px, 2vw, 26px);
   border-radius: 22px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  gap: 12px;
 }
 
 .logo {
@@ -283,6 +285,49 @@ body {
   color: #7c5cff;
 }
 
+.header-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-friends-lobby {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #1e1b4b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.btn-friends-lobby:hover {
+  transform: translateY(-2px);
+  border-color: #7c5cff;
+  box-shadow: 0 6px 18px rgba(124, 92, 255, 0.12);
+}
+
+.btn-friends-icon {
+  font-size: 1.15rem;
+}
+
+.friends-online-badge {
+  background: #10b981;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 1px 7px;
+  border-radius: 99px;
+  margin-left: 2px;
+}
+
 /* Mode Cards Grid */
 .lobby-main {
   width: 100%;
@@ -311,17 +356,18 @@ body {
 .mode-cards-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: clamp(12px, 1.6vw, 18px);
+  width: 100%;
 }
 
 .mode-card {
   background: #ffffff;
   border: 2px solid #e2e8f0;
   border-radius: 20px;
-  padding: 18px 22px;
+  padding: clamp(15px, 2.0vh, 20px) clamp(16px, 1.8vw, 24px);
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: clamp(14px, 1.5vw, 18px);
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
   transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -1029,6 +1075,8 @@ body {
   padding: 30px 28px;
   width: 100%;
   max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 24px 50px -10px rgba(0, 0, 0, 0.22);
   display: flex;
   flex-direction: column;
@@ -2078,6 +2126,329 @@ body {
 .dialog-actions .btn-danger:hover {
   box-shadow: 0 6px 18px rgba(244, 63, 94, 0.5);
   transform: translateY(-1px);
+}
+
+/* ==========================================================
+   RESPONSIVE DESIGN (HOÀN HẢO CHO PC, LAPTOP, TABLET & MOBILE)
+   ========================================================== */
+
+/* 1. Màn hình Tablet & Laptop nhỏ (<= 1024px) */
+@media (max-width: 1024px) {
+  #app {
+    padding: 10px;
+  }
+
+  #screen-lobby {
+    max-width: 920px;
+  }
+
+  .game-layout {
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    justify-content: flex-start;
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+
+  .game-board-section {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .game-sidebar {
+    max-width: min(560px, 100%);
+    width: 100%;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .in-game-chat-card {
+    max-height: 200px;
+  }
+
+  .chat-messages-container {
+    height: 75px;
+    max-height: 75px;
+  }
+}
+
+/* 2. Màn hình điện thoại & màn hình hẹp (<= 768px) */
+@media (max-width: 768px) {
+  html, body {
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  body {
+    padding: 8px 10px;
+    align-items: flex-start;
+  }
+
+  #app {
+    height: auto;
+    min-height: 100vh;
+    max-height: none;
+  }
+
+  /* Lobby trên điện thoại */
+  #screen-lobby {
+    padding: 8px 0 24px 0;
+    gap: 14px;
+    height: auto;
+    min-height: 100%;
+  }
+
+  .lobby-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 18px;
+  }
+
+  .lobby-header .logo {
+    justify-content: center;
+  }
+
+  .server-status {
+    justify-content: center;
+    order: 3;
+  }
+
+  .header-right-actions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+    order: 2;
+  }
+
+  .btn-friends-lobby {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 0.82rem;
+  }
+
+  .profile-card {
+    flex: 1.4;
+    padding: 6px 10px;
+    gap: 8px;
+  }
+
+  .profile-avatar {
+    font-size: 1.5rem;
+  }
+
+  .profile-name {
+    font-size: 0.85rem;
+  }
+
+  .profile-stats {
+    font-size: 0.7rem;
+    gap: 6px;
+  }
+
+  /* Chuyển danh sách chế độ sang 1 cột trên điện thoại */
+  .mode-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .card-local {
+    grid-column: span 1;
+  }
+
+  .mode-card {
+    padding: 14px 16px;
+    border-radius: 16px;
+    gap: 14px;
+  }
+
+  .mode-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.8rem;
+    border-radius: 14px;
+  }
+
+  .mode-info h2 {
+    font-size: 1.1rem;
+  }
+
+  .mode-info p {
+    font-size: 0.78rem;
+  }
+
+  .mode-arrow {
+    font-size: 1.5rem;
+  }
+
+  /* Bàn cờ trên Mobile */
+  .big-board-wrapper {
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .board-edge-indicator {
+    font-size: 0.74rem;
+    padding: 4px 12px;
+  }
+
+  .players-status-strip {
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    flex-wrap: nowrap;
+  }
+
+  .p-pill {
+    padding: 6px 10px;
+    min-width: 110px;
+  }
+
+  .p-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
+  }
+
+  .p-name {
+    font-size: 0.8rem;
+  }
+
+  .turn-banner {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .dock-wall-btn {
+    padding: 8px 14px;
+    font-size: 0.82rem;
+  }
+
+  /* Phòng chờ trên Mobile */
+  .waiting-box {
+    padding: 24px 18px;
+    border-radius: 20px;
+    gap: 14px;
+  }
+
+  .seats-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .seat-card {
+    padding: 10px 8px;
+  }
+
+  /* Modals trên Mobile */
+  .modal-card {
+    padding: 22px 18px;
+    border-radius: 20px;
+    max-height: 92vh;
+    overflow-y: auto;
+    gap: 14px;
+  }
+
+  .onboard-emoji {
+    font-size: 2.8rem;
+  }
+
+  .onboard-header h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* 3. Màn hình Laptop chiều cao thấp (<= 750px) */
+@media (max-height: 750px) and (min-width: 769px) {
+  #screen-lobby {
+    gap: 14px;
+  }
+
+  .lobby-header {
+    padding: 8px 18px;
+  }
+
+  .mode-cards-grid {
+    gap: 10px;
+  }
+
+  .mode-card {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .mode-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.7rem;
+  }
+
+  .mode-info h2 {
+    font-size: 1.05rem;
+  }
+
+  .mode-info p {
+    font-size: 0.76rem;
+  }
+
+  .game-layout {
+    gap: 20px;
+  }
+
+  .game-sidebar {
+    gap: 8px;
+  }
+
+  .chat-messages-container {
+    height: 70px;
+    max-height: 70px;
+  }
+}
+
+/* 4. Màn hình lớn & Desktop cao cấp (>= 1440px) */
+@media (min-width: 1440px) {
+  #app {
+    max-width: 1480px;
+  }
+
+  #screen-lobby {
+    max-width: 1180px;
+    gap: 28px;
+  }
+
+  .lobby-header {
+    padding: 18px 28px;
+    border-radius: 26px;
+  }
+
+  .mode-card {
+    padding: 22px 28px;
+    border-radius: 24px;
+    gap: 20px;
+  }
+
+  .mode-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 2.5rem;
+    border-radius: 18px;
+  }
+
+  .mode-info h2 {
+    font-size: 1.35rem;
+  }
+
+  .mode-info p {
+    font-size: 0.88rem;
+  }
 }
 
 
